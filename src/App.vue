@@ -6,6 +6,7 @@
       <button @click="vistaActual = 'home'" :class="{ active: vistaActual === 'home' }">Inicio</button>
       <button @click="vistaActual = 'servicios'" :class="{ active: vistaActual === 'servicios' }">Servicios</button>
       <button @click="vistaActual = 'equipo'" :class="{ active: vistaActual === 'equipo' }">Equipo</button>
+      <button @click="vistaActual = 'register'" :class="{ active: vistaActual === 'register' }">Registrarse</button>
     </nav>
   </header>
 
@@ -13,6 +14,7 @@
     <HomeView v-if="vistaActual === 'home'" />
     <ServiciosView v-if="vistaActual === 'servicios'" />
     <EquipoView v-if="vistaActual === 'equipo'" />
+    <RegisterView v-if="vistaActual === 'register'" />
   </main>
 
   <footer>
@@ -45,6 +47,7 @@ import { ref } from 'vue'
 import HomeView from './views/HomeView.vue'
 import ServiciosView from './views/ServiciosView.vue'
 import EquipoView from './views/EquipoView.vue'
+import RegisterView from './views/RegisterView.vue'
 
 const vistaActual = ref('home')
 </script>

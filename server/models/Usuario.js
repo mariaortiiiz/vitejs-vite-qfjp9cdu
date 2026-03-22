@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const UsuarioSchema = new mongoose.Schema({
-    correo: String,
+    correo: { type: String, unique: true },
     name: String,
     apellido: String,
     edad: Number,
