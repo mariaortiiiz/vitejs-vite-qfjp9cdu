@@ -6,4 +6,6 @@ const API = axios.create({
 });
 
 export const getServices = () => API.get("/services");
-export const getTeam = () => API.get("/team");
+export const getEquipo = () => API.get("/team");
+export const getCita = () => API.get("/citas");
+export const getUsuarios = () => API.get("/usuarios");
