@@ -6,7 +6,9 @@
       <button @click="vistaActual = 'home'" :class="{ active: vistaActual === 'home' }">Inicio</button>
       <button @click="vistaActual = 'servicios'" :class="{ active: vistaActual === 'servicios' }">Servicios</button>
       <button @click="vistaActual = 'equipo'" :class="{ active: vistaActual === 'equipo' }">Equipo</button>
-      <button @click="vistaActual = 'register'" :class="{ active: vistaActual === 'register' }">Registrarse</button>
+      <button v-if="!isLogged" @click="vistaActual = 'register'" :class="{ active: vistaActual === 'register' }">Registrarse</button>
+      <button v-if="!isLogged" @click="vistaActual = 'login'" :class="{ active: vistaActual === 'login'}">Iniciar sesión</button>
+      <button v-if="isLogged" @click="logout">Cerrar sesión</button>
     </nav>
   </header>
 
@@ -15,6 +17,7 @@
     <ServiciosView v-if="vistaActual === 'servicios'" />
     <EquipoView v-if="vistaActual === 'equipo'" />
     <RegisterView v-if="vistaActual === 'register'" />
+    <LoginView v-if="vistaActual === 'login'" @login-success="vistaActual = 'home'"/>
   </main>
 
   <footer>
@@ -48,8 +51,21 @@ import HomeView from './views/HomeView.vue'
 import ServiciosView from './views/ServiciosView.vue'
 import EquipoView from './views/EquipoView.vue'
 import RegisterView from './views/RegisterView.vue'
+import LoginView from './views/LoginView.vue'
 
+// Estados
 const vistaActual = ref('home')
+const isLogged = ref(!!localStorage.getItem("token"))
+
+const logout= () => {
+    localStorage.removeItem("token");
+    isLogged.value = false;
+    vistaActual.value = 'home';
+    alert("Sesión cerrada");
+    }
+
+    
+
 </script>
 
 <style>
