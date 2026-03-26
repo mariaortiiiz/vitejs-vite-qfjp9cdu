@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 15s      # Con qué frecuencia recoger métricas
+  evaluation_interval: 15s  # Con qué frecuencia evaluar reglas
+
+# Configuración de los endpoints a scrapear
+scrape_configs:
+  # Métricas del backend Node.js
+  - job_name: 'fisiored-backend'
+    static_configs:
+      - targets: ['backend:5000']
+    metrics_path: '/metrics'
+  
+  # Métricas de Docker (cAdvisor)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+  
+  # Métricas de MongoDB (opcional, para más adelante)
+  # - job_name: 'mongodb'
+  #   static_configs:
+  #     - targets: ['mongodb-exporter:9216']
