@@ -5,7 +5,9 @@
     <h1>⚕️ FisioRed</h1>
     <p class="slogan">Tu recuperación es nuestra prioridad</p>
     <p class="descripcion">Clínica de fisioterapia con los mejores profesionales</p>
-    <router-link to="/servicios" class="btn">Ver servicios</router-link>
+    <button class="btn" @click="$parent.vistaActual = 'servicios'">
+      Ver servicios
+    </button>
   </div>
   
   <div class="features">
@@ -29,7 +31,9 @@
   <div class="cta">
     <h2>¿Listo para empezar tu recuperación?</h2>
     <p>Contacta con nosotros y te evaluaremos sin compromiso</p>
-    <router-link to="/equipo" class="btn btn-secondary">Conoce a nuestro equipo</router-link>
+    <button class="btn btn-secondary" @click="$parent.vistaActual = 'equipo'">
+      Conoce a nuestro equipo
+    </button>
   </div>
 </div>
 </template>

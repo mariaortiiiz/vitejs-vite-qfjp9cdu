@@ -12,11 +12,27 @@ const getCitas = async (req, res) => {
 
 const createCita = async (req, res) => {
     try{
-        const cita = new Cita(req.body);
-        const saved = await cita.save();
-        res.json(saved);
+        //Comprobar si existe
+        const citaExiste = await Cita.findOne({
+            idProfesional: req.body.idProfesional,
+            fecha: new Date(req.body.fecha)
+        });
+        
+        if(citaExiste){
+            return res.status(400).json({
+                message: "Horario ocupado"
+            });
+        }
+
+        const nuevaCita = new Cita({
+            ...req.body, 
+            paciente: req.user.id});
+            
+        await nuevaCita.save();
+        res.json(nuevaCita);
+
     } catch (error) {
-        res.status(500).json({message: error.message});
+        res.status(500).json({message: "Error al crear la cita"});
     }
 };
 
