@@ -6,6 +6,12 @@
       <button @click="vistaActual = 'home'" :class="{ active: vistaActual === 'home' }">Inicio</button>
       <button @click="vistaActual = 'servicios'" :class="{ active: vistaActual === 'servicios' }">Servicios</button>
       <button @click="vistaActual = 'equipo'" :class="{ active: vistaActual === 'equipo' }">Equipo</button>
+      <button
+        v-if="isLogged"
+        @click="vistaActual = 'cita'"
+        :class="{ active: vistaActual === 'cita'}"> 
+        Pedir cita
+      </button>
       <button v-if="!isLogged" @click="vistaActual = 'register'" :class="{ active: vistaActual === 'register' }">Registrarse</button>
       <button v-if="!isLogged" @click="vistaActual = 'login'" :class="{ active: vistaActual === 'login'}">Iniciar sesión</button>
       <button v-if="isLogged" @click="logout">Cerrar sesión</button>
@@ -17,7 +23,8 @@
     <ServiciosView v-if="vistaActual === 'servicios'" />
     <EquipoView v-if="vistaActual === 'equipo'" />
     <RegisterView v-if="vistaActual === 'register'" />
-    <LoginView v-if="vistaActual === 'login'" @login-success="vistaActual = 'home'"/>
+    <LoginView v-if="vistaActual === 'login'" @login-success="handleLoginSuccess"/>
+    <CitaView v-if="vistaActual === 'cita'" />
   </main>
 
   <footer>
@@ -52,7 +59,7 @@ import ServiciosView from './views/ServiciosView.vue'
 import EquipoView from './views/EquipoView.vue'
 import RegisterView from './views/RegisterView.vue'
 import LoginView from './views/LoginView.vue'
-
+import CitaView from './views/CitaView.vue'
 // Estados
 const vistaActual = ref('home')
 const isLogged = ref(!!localStorage.getItem("token"))
@@ -64,7 +71,10 @@ const logout= () => {
     alert("Sesión cerrada");
     }
 
-    
+const handleLoginSuccess = () => {
+  isLogged.value = true;
+  vistaActual.value = 'home';
+}   
 
 </script>
 

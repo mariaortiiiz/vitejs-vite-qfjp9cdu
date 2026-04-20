@@ -22,6 +22,9 @@ services:
       - mongodb
     environment:
       MONGO_URI: mongodb://mongodb:27017/fisio
+      NODE_ENV: docker
+    volumes:
+      - backend_logs:/var/log/backend
     networks:
       - fisio_network
 
@@ -38,8 +41,95 @@ services:
     networks:
       - fisio_network
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: fisio_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - fisio_network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: fisio_logstash
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - backend_logs:/var/log/backend
+    depends_on:
+      - elasticsearch
+    networks:
+      - fisio_network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: fisio_kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - fisio_network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fisio_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - fisio_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fisio_grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - fisio_network
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: fisio_cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    privileged: true
+    networks:
+      - fisio_network
+
 volumes:
   mongo_data:
+  elasticsearch_data:
+  prometheus_data:
+  grafana_data:
+  backend_logs:
 
 networks:
- fisio_network:
+  fisio_network:
+
+

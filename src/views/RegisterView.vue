@@ -83,7 +83,7 @@ export default {
         }
         
         //Comprobar que el formato del telefono es correcto
-        const regexTelfono = /^\d{10}$/;
+        const regexTelfono = /^\d{9}$/;
         if(!regexTelfono.test(this.telefono)){
             this.errorTelefono = "Teléfono invalido"
             formato = false;

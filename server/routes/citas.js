@@ -1,12 +1,16 @@
 const express = require("express");
 const router = express.Router();
+const authMiddleware = require("../middleware/authMiddleware");
 
 const{
     getCitas,
-    createCita
+    createCita,
+    getHorasOcupadas
 } = require("../controllers/citaController");
 
-router.get("/", getCitas);
-router.post("/", createCita);
+router.get("/disponibles", authMiddleware, getHorasOcupadas);
+router.get("/", authMiddleware, getCitas);
+router.post("/", authMiddleware, createCita);
+
 
 module.exports = router;
