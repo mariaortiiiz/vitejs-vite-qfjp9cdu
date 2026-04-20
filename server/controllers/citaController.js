@@ -36,4 +36,30 @@ const createCita = async (req, res) => {
     }
 };
 
-module.exports = {getCitas, createCita};
+const getHorasOcupadas = async (req, res) => {
+    try{
+        const {profesional, fecha} = req.query;
+
+        const inicio = new Date(fecha);
+        const fin = new Date(fecha);
+        fin.setHours(23, 59, 59);
+
+        const citas = await Cita.find({
+            idProfesional: profesional,
+            fecha: {
+                $gte: inicio,
+                $lte: fin
+            }
+        });
+
+        const horasOcupadas = citas.map(cita => 
+            new Date(cita.fecha).toISOString().substring(11, 16)
+        );
+
+        res.json(horasOcupadas);
+    } catch (error) {
+        res.status(500).json({ message: "Error obteniendo horas ocupadas" });
+    }
+};
+
+module.exports = {getCitas, createCita, getHorasOcupadas};

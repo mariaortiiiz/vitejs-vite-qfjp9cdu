@@ -4,15 +4,13 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 const{
     getCitas,
-    createCita
+    createCita,
+    getHorasOcupadas
 } = require("../controllers/citaController");
 
+router.get("/disponibles", authMiddleware, getHorasOcupadas);
 router.get("/", authMiddleware, getCitas);
 router.post("/", authMiddleware, createCita);
+
 
 module.exports = router;
-
-/* 
-router.get("/", authMiddleware, getCitas);
-router.post("/", authMiddleware, createCita);
-*/

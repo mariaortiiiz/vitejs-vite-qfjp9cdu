@@ -18,12 +18,13 @@
       
         <input v-model="servicio" placeholder="Servicio (Ej: Fisioterapia)" />
 
-        <input v-model="fecha" type="date" />
+        <input v-model="fecha" type="date" :min="hoy"/>
 
             <select v-model="horaSeleccionada">
                 <option disabled value="">Selecciona hora</option>
-                <option v-for="hora in horas" :key="hora">
+                <option v-for="hora in horas" :key="hora" :value="hora" :disabled="horasOcupadas.includes(hora)">
                     {{ hora }}
+                    {{ horasOcupadas.includes(hora) ? '(ocupada)' : '' }}
                 </option>
             </select>
 
@@ -51,7 +52,9 @@ export default {
       fecha: "",
       asunto: "",
       error: "",
-      success: ""
+      success: "",
+      hoy: new Date().toISOString().split("T")[0],
+      horasOcupadas: []
     };
   },
    async mounted() {
@@ -64,22 +67,59 @@ export default {
 
     this.generarHoras();
   },
+  watch: {
+    fecha() {
+      this.cargarHorasOcupadas();
+    },
+    idProfesional(){
+      this.cargarHorasOcupadas();
+    }
+  },
   methods: {
 
     generarHoras() {
       const horas = [];
+      const ahora = new Date();
 
       for (let h = 9; h < 20; h++) {
-        horas.push(`${h.toString().padStart(2, "0")}:00`);
-        horas.push(`${h.toString().padStart(2, "0")}:30`);
+        ["00", "30"].forEach((min) => {
+          const hora = `${h.toString().padStart(2, "0")}:${min}`;
+          const fechaHora = new Date(`${this.fecha}T${hora}`);
+
+          if ((!this.fecha || fechaHora > ahora) && !this.horasOcupadas.includes(hora)){
+            horas.push(hora);
+          }
+        });
       }
 
       this.horas = horas;
+
+    },
+
+    async cargarHorasOcupadas() {
+      if (!this.idProfesional || !this.fecha) return;
+
+      try {
+        const res = await API.get("/citas/disponibles", {
+          params: {
+            profesional: this.idProfesional,
+            fecha: this.fecha
+          }
+        });
+
+        this.horasOcupadas = res.data;
+
+        this.generarHoras(); // recalcular horas disponibles
+      } catch (error) {
+        console.error("Error cargando horas ocupadas");
+      }
     },
 
     async handleCita() {
         this.error = "";
         this.success = "";
+
+        const token = localStorage.getItem("token");
 
         if (!token) {
             this.error = "Debes iniciar sesión para pedir cita";
