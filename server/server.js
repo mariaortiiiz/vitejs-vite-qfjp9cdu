@@ -8,7 +8,9 @@ const { logger, logMiddleware } = require("./logger");
 const metricsMiddleware = require("./middleware/metrics");
 const metricsRoutes = require("./routes/metrics");
 
-dotenv.config();
+dotenv.config({
+    path: process.env.NODE_ENV === "docker" ? ".env.docker" : ".env.development"
+});
 const app = express();
 
 // ============================================

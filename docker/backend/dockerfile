@@ -15,7 +15,7 @@ RUN npm install
 # Copiar el resto del código de la aplicación
 COPY server .
 
-# Exponer el puerto que usa la aplicación (5000 según tu server.js)
+# Exponer el puerto que usa la aplicación
 EXPOSE 5000
 
 # Comando para ejecutar la aplicación
