@@ -16,9 +16,14 @@
 
         </select>
       
-        <input v-model="servicio" placeholder="Servicio (Ej: Fisioterapia)" />
+        <input v-model="servicio" placeholder="Servicio" />
 
-        <input v-model="fecha" type="date" :min="hoy"/>
+        <VueDatePicker v-model="fecha" :enable-time-picker="false" 
+          :min-date="new Date()" 
+          :disabled-dates="deshabilitarDomingos"
+          :format="formatearFecha"
+          teleport="body"
+          />
 
             <select v-model="horaSeleccionada">
                 <option disabled value="">Selecciona hora</option>
@@ -40,8 +45,13 @@
 
 <script>
 import API from "../services/api";
+import { VueDatePicker } from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 export default {
+  components:{
+    VueDatePicker
+  },
   data() {
     return {
       profesionales: [],
@@ -49,7 +59,7 @@ export default {
       horaSeleccionada: "",
       idProfesional: "",
       servicio: "",
-      fecha: "",
+      fecha: null,
       asunto: "",
       error: "",
       success: "",
@@ -68,8 +78,12 @@ export default {
     this.generarHoras();
   },
   watch: {
-    fecha() {
+    fecha(nuevaFecha) {
+      if(nuevaFecha){
+        nuevaFecha.setHours(0,0,0,0);
+      }
       this.cargarHorasOcupadas();
+      this.generarHoras();
     },
     idProfesional(){
       this.cargarHorasOcupadas();
@@ -81,12 +95,31 @@ export default {
       const horas = [];
       const ahora = new Date();
 
-      for (let h = 9; h < 20; h++) {
+      if(!this.fecha){
+        this.horas = [];
+        return;
+      }
+
+      const dia = new Date(this.fecha).getDay();
+
+      let inicio = 9;
+      let fin = 20;
+
+      if(dia === 6){
+        inicio = 10;
+        fin = 14;
+      }
+
+      for (let h = inicio; h < fin; h++) {
         ["00", "30"].forEach((min) => {
           const hora = `${h.toString().padStart(2, "0")}:${min}`;
-          const fechaHora = new Date(`${this.fecha}T${hora}`);
 
-          if ((!this.fecha || fechaHora > ahora) && !this.horasOcupadas.includes(hora)){
+          const fechaHora = new Date(this.fecha);
+          fechaHora.setHours(h, min === "00" ? 0 : 30, 0, 0);
+          
+          const esHoy = fechaHora.toDateString() === ahora.toDateString();
+
+          if ((!esHoy || fechaHora > ahora) && !this.horasOcupadas.includes(hora)) {
             horas.push(hora);
           }
         });
@@ -100,10 +133,13 @@ export default {
       if (!this.idProfesional || !this.fecha) return;
 
       try {
+        const fechaFormateada = new Date (this.fecha).toLocaleDateString("en-CA", {
+          timeZone: "Europe/Madrid"
+        })
         const res = await API.get("/citas/disponibles", {
           params: {
             profesional: this.idProfesional,
-            fecha: this.fecha
+            fecha: fechaFormateada
           }
         });
 
@@ -113,6 +149,10 @@ export default {
       } catch (error) {
         console.error("Error cargando horas ocupadas");
       }
+    },
+
+    deshabilitarDomingos(date){
+      return date.getDay() === 0;
     },
 
     async handleCita() {
@@ -132,7 +172,10 @@ export default {
         }
 
         // Unir fecha + hora
-        const fechaCompleta = `${this.fecha}T${this.horaSeleccionada}`;
+        const fechaFormateada = new Date (this.fecha).toLocaleDateString("en-CA", {
+          timeZone: "Europe/Madrid"
+        });
+        const fechaCompleta = `${fechaFormateada}T${this.horaSeleccionada}`;
 
         try {
             await API.post("/citas", {
@@ -147,6 +190,13 @@ export default {
         } catch (error) {
             this.error = error.response?.data?.message || "Error";
         }
+    },
+    formatearFecha(date){
+      if(!date) return "";
+
+      return date.toLocaleDateString("es-ES", {
+        timeZone: "Europe/Madrid",
+      });
     }
   }
 };
@@ -261,6 +311,15 @@ button:active {
     margin: 20px;
     padding: 25px;
   }
+}
+
+:deep(.dp__menu) {
+  z-index: 9999 !important;
+}
+
+:deep(.dp__input_wrap) {
+  position: relative;
+  z-index: 9999;
 }
 
 </style>
