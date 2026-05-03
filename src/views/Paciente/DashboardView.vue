@@ -90,7 +90,7 @@ export default {
     irANuevaCita() {
       // Cambiar la vista a nueva-cita
       this.$emit('cambiarVista', 'nueva-cita')
-    }
+    },
     irAPerfil() {
         this.$emit('cambiarVista', 'perfil')
     }
