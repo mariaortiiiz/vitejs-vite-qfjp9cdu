@@ -26,29 +26,36 @@ export default {
   },
   methods: {
     async handleLogin() {
-            try {
-                const res = await axios.post("http://localhost:5000/api/autenticador/login", {
-                correo: this.correo,
-                password: this.password
-            });
-            localStorage.setItem("token", res.data.token);
-            alert("Se ha iniciado sesión");
-            
-            this.$emit("login-success");
-            window.location.reload();
+      try {
+        const res = await axios.post("http://localhost:5000/api/autenticador/login", {
+          correo: this.correo,
+          password: this.password
+        });
+        localStorage.setItem("token", res.data.token);
 
-            } catch (error) {
-                if(error.response) {
-                    alert(error.response.data.message);
-                } else {
-                    alert("Error de conexión")
-                }
-            }
-        },
+        let rol = "paciente";  // por defecto paciente
+        if (this.correo.includes("admin")) {
+          rol = "admin";
+        }
+
+        localStorage.setItem("rol", rol);
+
+        alert(`Bienvenido ${rol === "admin" ? "Administrador" : "Paciente"}`);
+
+        // 🔥 CAMBIO IMPORTANTE: Emitir evento en lugar de usar router
+        this.$emit('login-success', rol);
+
+      } catch (error) {
+        if(error.response) {
+          alert(error.response.data.message);
+        } else {
+          alert("Error de conexión")
+        }
+      }
     },
+  },
 };
 </script>
-
 
 <style scoped>
 .login {

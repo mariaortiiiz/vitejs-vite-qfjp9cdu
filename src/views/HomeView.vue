@@ -3,11 +3,27 @@
 <div class="inicio">
   <div class="hero">
     <h1>⚕️ FisioRed</h1>
-    <p class="slogan">Tu recuperación es nuestra prioridad</p>
-    <p class="descripcion">Clínica de fisioterapia con los mejores profesionales</p>
-    <button class="btn" @click="$parent.vistaActual = 'servicios'">
-      Ver servicios
-    </button>
+    <p class="slogan">¡Tu recuperación es nuestra prioridad</p>
+    <p class="descripcion"> Clínica de fisioterapia con los mejores profesionales</p>
+
+    
+    <div class="botones-hero">
+
+      <router-link to="/servicios" class="btn">Ver servicios</router-link>
+    
+      <router-link v-if="isLoggedIn && userRol === 'paciente'" 
+                   to="/paciente/dashboard" 
+                   class="btn btn-paciente">
+        📋 Mi Área Personal
+      </router-link>
+      
+      
+      <router-link v-if="!isLoggedIn" 
+                   to="/login" 
+                   class="btn btn-login">
+        🔑 Iniciar sesión
+      </router-link>
+    </div>  
   </div>
   
   <div class="features">
@@ -31,12 +47,24 @@
   <div class="cta">
     <h2>¿Listo para empezar tu recuperación?</h2>
     <p>Contacta con nosotros y te evaluaremos sin compromiso</p>
-    <button class="btn btn-secondary" @click="$parent.vistaActual = 'equipo'">
-      Conoce a nuestro equipo
-    </button>
+    <router-link to="/equipo" class="btn btn-secondary">Conoce a nuestro equipo</router-link>
   </div>
 </div>
 </template>
+
+<script>
+export default {
+  name: 'HomeView',
+  computed: {
+    isLoggedIn() {
+      return localStorage.getItem('token') !== null
+    },
+    userRol() {
+      return localStorage.getItem('rol')
+    }
+  }
+}
+</script>
 
 <style scoped>
 .inicio {
@@ -88,6 +116,24 @@ box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 .btn-secondary {
 background: #2c3e50;
 color: white;
+}
+
+.botones-hero {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.btn-paciente {
+  background: #ffd700;
+  color: #2c3e50;
+}
+
+.btn-login {
+  background: #3498db;
+  color: white;
 }
 
 .features {
@@ -147,5 +193,11 @@ color: #666;
 .hero h1 {
   font-size: 2.5rem;
 }
+
+.botones-hero {
+  flex-direction: column;
+  align-items: center;
+}
+
 }
 </style>

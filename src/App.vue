@@ -13,8 +13,7 @@
         Pedir cita
       </button>
       <button v-if="!isLogged" @click="vistaActual = 'register'" :class="{ active: vistaActual === 'register' }">Registrarse</button>
-      <button v-if="!isLogged" @click="vistaActual = 'login'" :class="{ active: vistaActual === 'login'}">Iniciar sesión</button>
-      <button v-if="isLogged" @click="logout">Cerrar sesión</button>
+      <!-- <button v-if="!isLogged" @click="vistaActual = 'login'" :class="{ active: vistaActual === 'login'}">Iniciar sesión</button> -->      <button v-if="isLogged" @click="logout">Cerrar sesión</button>
     </nav>
   </header>
 
@@ -25,6 +24,12 @@
     <RegisterView v-if="vistaActual === 'register'" />
     <LoginView v-if="vistaActual === 'login'" @login-success="handleLoginSuccess"/>
     <CitaView v-if="vistaActual === 'cita'" />
+    
+    <!-- Módulo Paciente con navegación interna -->
+    <div v-if="vistaActual === 'paciente-dashboard'">
+      <DashboardView v-if="subVistaPaciente === 'dashboard'" @cambiarVista="cambiarVistaPaciente" />
+      <NuevaCitaView v-if="subVistaPaciente === 'nueva-cita'" @cambiarVista="cambiarVistaPaciente" />
+    </div>
   </main>
 
   <footer>
@@ -60,9 +65,13 @@ import EquipoView from './views/EquipoView.vue'
 import RegisterView from './views/RegisterView.vue'
 import LoginView from './views/LoginView.vue'
 import CitaView from './views/CitaView.vue'
+import DashboardView from './views/Paciente/DashboardView.vue'
+import NuevaCitaView from './views/Paciente/NuevaCitaView.vue'
+
 // Estados
 const vistaActual = ref('home')
 const isLogged = ref(!!localStorage.getItem("token"))
+const subVistaPaciente = ref('dashboard')  // Para navegar dentro del módulo paciente
 
 const logout= () => {
     localStorage.removeItem("token");
@@ -71,9 +80,18 @@ const logout= () => {
     alert("Sesión cerrada");
     }
 
-const handleLoginSuccess = () => {
+const handleLoginSuccess = (rol) => {
   isLogged.value = true;
-  vistaActual.value = 'home';
+  if (rol === 'admin') {
+    vistaActual.value = 'admin-dashboard';
+  } else {
+    vistaActual.value = 'paciente-dashboard';
+    subVistaPaciente.value = 'dashboard';
+  }
+}   
+
+const cambiarVistaPaciente = (vista) => {
+  subVistaPaciente.value = vista;
 }   
 
 </script>
